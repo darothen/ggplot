@@ -1,4 +1,3 @@
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from .theme import theme_base
@@ -172,8 +171,10 @@ def _set_theme_seaborn_rcparams(rcParams, style, gridweight, context):
     rcParams["figure.edgecolor"] = "0.50"
     rcParams["figure.subplot.hspace"] = "0.5"
 
+    return rcParams
 
-class theme_seaborn(theme):
+
+class theme_seaborn(theme_base):
     """
     Theme for seaborn.
 
@@ -191,16 +192,17 @@ class theme_seaborn(theme):
     """
 
     def __init__(self, style="whitegrid", gridweight=None, context="notebook"):
-        super(theme_seaborn, self).__init__(complete=True)
+        super(theme_seaborn, self).__init__()
         self.style = style
         self.gridweight = gridweight
         self.context = context
 
-    def apply_rcparams(self, rcParams):
-        _set_theme_seaborn_rcparams(rcParams, self.style, self.gridweight,
-                                    self.context)
+        self._rcParams = mpl.rcParams.copy()
+        theme_rcParams = _set_theme_seaborn_rcparams(self._rcParams, self.style,
+                                                     self.gridweight, self.context)
+        self._rcParams.update(theme_rcParams)
 
-    def apply_theme(self, ax):
+    def apply_final_touches(self, ax):
         """"Styles x,y axes to appear like ggplot2
         Must be called after all plot and axis manipulation operations have
         been carried out (needs to know final tick spacing)
